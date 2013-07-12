@@ -1,0 +1,97 @@
+var win = Ti.UI.createWindow({
+	title:"readWriteDataToFileSystems",
+	backgroundColor:"#FFF",
+	exitOnClose:true
+});
+
+var save = Ti.UI.createButton({
+	title:"save",
+	top:10,
+	height:22,
+	width:48,
+	font:{fontSize:12}
+});
+
+var del = Ti.UI.createButton({
+	title:"delete",
+	bottom:30,
+	height:36,
+	width:60
+});
+
+var txtField = Ti.UI.createTextField({
+	top:10,
+	height:36,
+	width:300,
+	rightButton:save,
+	hintText:"Enter your message",
+	borderStyle:Ti.UI.INPUT_BORDER_STYLE_ROUNDED,
+	editable:true	
+});
+
+var txtArea = Ti.UI.createTextArea({
+	bottom:70,
+	height:100,
+	width:300,
+	borderWidth:1,
+	borderRadius:10,
+	editable:false,
+	borderColor:"black",
+	suppressReturn:false
+});
+
+save.addEventListener("click", function(e){
+	if (txtField.value != ""){
+		var dataFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "dataFile.txt");
+		if (!dataFile.exists()){
+			dataFile.createFile();
+			alert("file created");
+			
+			dataFile.write(txtField.value);
+			
+			txtArea.value = txtField.value;
+		}else{
+			var fileContent = dataFile.read();
+			var newContent = fileContent + "" + txtField.value;
+			dataFile.write(newContent);
+			
+			txtArea.value = newContent;
+			alert("file updated!");
+		}
+		
+		txtField.value = "";
+		txtField.blur();
+	}else{
+		alert("enter text!")
+	}
+});
+
+
+var dataFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "dataFile.txt");
+	if (dataFile.exists()){
+		var fileContent = dataFile.read();
+		txtArea.value = fileContent.text;
+	}
+
+del.addEventListener("click", function(e){
+	if (dataFile.value !=""){
+		Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, "dataFile.txt");
+		dataFile.deleteFile();
+		alert("File Deleted.");
+		txtField.value="";
+		txtField.blur();
+		
+	}
+})
+
+win.addEventListener("click", function(e){
+	txtField.blur();
+});
+
+win.add(txtField);
+win.add(txtArea);
+win.add(del);
+
+
+
+win.open();
